@@ -19,7 +19,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       setAccessToken(await login(email, password));
-      navigate(location.state?.from || '/chat', { replace: true });
+      navigate(location.state?.from || '/chat', { replace: true, state: location.state?.fromState });
     } catch (e) {
       setError(errorMessage(e, '이메일이나 비밀번호를 확인해 주세요'));
     } finally {
