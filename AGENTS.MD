@@ -40,7 +40,7 @@ src
 
 - 자기 담당 파일만 수정한다. 다른 담당 파일은 고치지 않는다.
 - 아래 **공용 파일**은 팀에 먼저 말하고 수정한다.
-    - `api/client.js`, `store/authStore.js`, `components/Layout.jsx`, `components/RequireAuth.jsx`, `index.css`, `vite.config.js`, `package.json`
+    - `api/client.js`, `store/authStore.js`, `components/Layout.jsx`, `components/RequireAuth.jsx`, `index.css`, `index.html`(폰트 링크), `vite.config.js`, `package.json`
 - `App.jsx`에는 자기 화면의 `<Route>` 줄만 추가한다. 다른 줄의 순서나 모양은 바꾸지 않는다.
 
 ## 화면 (pages)
@@ -105,12 +105,14 @@ export async function getOrder(orderId) {
 
 - Tailwind 기본 색(`stone-*`, `emerald-*`, `red-*`, `gray-*` 등)과 `#hex` 색을 직접 쓰지 않는다.
     - 지금 `LoginPage`와 `Placeholder`에 기본 색이 남아 있다. 따라 쓰지 말고, 각 담당이 화면을 만들 때 Zelo 토큰으로 바꾼다.
+    - **예외:** 메인 3D(`three/`)의 재료 색과 일러스트 장식 색(점무늬 배경, 그림자 투명도 등 `styles/*.css`의 `#hex`, `rgba`)은 디자인 시안 값이다. 토큰으로 바꾸거나 임의로 수정하지 않는다.
 - 새 색이나 글꼴이 필요하면 `index.css`의 `@theme`에 토큰을 추가하자고 팀에 먼저 말한다.
 - 화면 전용 CSS가 꼭 필요하면 `styles/<도메인>.css`를 만들고, 색은 `var(--color-zelo-*)`로 쓴다.
 - 자주 쓰는 모양은 기존 화면을 따른다.
     - 버튼: `h-11 rounded-full border-2 border-zelo-green px-5 font-medium text-zelo-green`
     - 화면 제목: `font-display text-5xl text-zelo-green`
 - 내용 영역 너비와 여백은 `Layout`이 잡는다. 화면에서 다시 `max-w`, `mx-auto`를 감싸지 않는다.
+    - **예외:** 홈(`/`)은 `Layout`이 폭을 잡지 않고 전체 화면으로 쓴다. 홈 안의 섹션은 각자 폭을 잡는다.
 
 ## 주석
 
