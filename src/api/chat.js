@@ -34,3 +34,8 @@ export async function updateQuoteItem(roomId, request) {
   const res = await client.post(`/api/chat/rooms/${roomId}/quote-items`, request);
   return res.data.data;
 }
+
+export async function retryMessage(roomId, messageId) {
+  const res = await client.post(`/api/chat/rooms/${roomId}/messages/${messageId}/retry`);
+  return res.data.data;
+}
