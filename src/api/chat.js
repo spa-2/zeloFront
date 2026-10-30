@@ -1,8 +1,7 @@
 import { client } from './client';
 
-// 채팅·견적 카드 화면은 채팅 담당이 채움. 여기는 호출 함수만 둠
-export async function startChat(text) {
-  const res = await client.post('/api/chat/messages', { text });
+export async function startChat(text, idempotencyKey) {
+  const res = await client.post('/api/chat/messages', { text }, { headers: { 'Idempotency-Key': idempotencyKey } });
   return res.data.data;
 }
 
@@ -11,12 +10,27 @@ export async function getRooms() {
   return res.data.data;
 }
 
-export async function getMessages(roomId) {
-  const res = await client.get(`/api/chat/rooms/${roomId}/messages`);
+export async function getMessages(roomId, params) {
+  const res = await client.get(`/api/chat/rooms/${roomId}/messages`, { params });
   return res.data.data;
 }
 
-export async function sendMessage(roomId, text) {
-  const res = await client.post(`/api/chat/rooms/${roomId}/messages`, { text });
+export async function sendMessage(roomId, text, idempotencyKey) {
+  const res = await client.post(`/api/chat/rooms/${roomId}/messages`, { text }, { headers: { 'Idempotency-Key': idempotencyKey } });
+  return res.data.data;
+}
+
+export async function chooseSubstitute(roomId, request) {
+  const res = await client.post(`/api/chat/rooms/${roomId}/quote-substitutes`, request);
+  return res.data.data;
+}
+
+export async function chooseBudgetOption(roomId, request) {
+  const res = await client.post(`/api/chat/rooms/${roomId}/quote-budget-options`, request);
+  return res.data.data;
+}
+
+export async function updateQuoteItem(roomId, request) {
+  const res = await client.post(`/api/chat/rooms/${roomId}/quote-items`, request);
   return res.data.data;
 }

@@ -83,7 +83,7 @@ export default function HomePage() {
       chatInputRef.current.focus();
       return;
     }
-    navigate('/chat', { state: { initialMessage: text } });
+    navigate('/chat', { state: { initialMessage: text, idempotencyKey: crypto.randomUUID() } });
   }
 
   function pickSaying(text) {
@@ -123,6 +123,7 @@ export default function HomePage() {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="먹고 싶은 메뉴를 입력해 주세요"
               autoComplete="off"
+              maxLength={1000}
             />
             <button type="submit" aria-label="보내기">
               <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">

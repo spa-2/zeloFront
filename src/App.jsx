@@ -22,6 +22,7 @@ export default function App() {
         <Route path="products/:productCode" element={<ProductDetailPage />} />
         <Route element={<RequireAuth />}>
           <Route path="chat" element={<ChatPage />} />
+          <Route path="chat/:roomId" element={<ChatPage />} />
           <Route path="orders" element={<OrderListPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
