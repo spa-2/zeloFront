@@ -58,7 +58,7 @@ export default function OrderListPage() {
                   <li key={order.orderId}>
                     <Link
                         to={`/orders/${order.orderId}`}
-                        className="flex flex-wrap items-center gap-4 rounded-3xl border-2 border-zelo-green bg-zelo-card px-6 py-5 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                        className="group flex flex-wrap items-center gap-4 rounded-3xl border-2 border-zelo-green bg-zelo-card px-6 py-5 transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                     >
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <span className="text-sm text-zelo-sub">{formatDateTime(order.createdAt)}</span>
@@ -66,6 +66,9 @@ export default function OrderListPage() {
                       </div>
                       <OrderStatusBadge status={order.status} />
                       <span className="font-logo text-2xl tracking-[.02em] text-zelo-green">{formatMoney(order.totalAmount)}</span>
+                      <span className="inline-flex h-9 shrink-0 items-center rounded-full border-2 border-zelo-green px-4 text-sm font-medium text-zelo-green transition-colors group-hover:bg-zelo-green group-hover:text-zelo-ivory">
+                        주문 상세 →
+                      </span>
                     </Link>
                   </li>
               ))}
