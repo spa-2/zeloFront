@@ -14,8 +14,8 @@ export default function ProductReason({ reason }) {
             <span className="chat-reason-badge matched"><span aria-hidden="true">✓</span> 조건 맞음 · {conditions.join(' · ')}</span>
           )}
           {hasRating && (
-            <span className="chat-reason-badge" aria-label={`평점 ${Number(reason.avgRating).toFixed(1)}점, 리뷰 ${reason.reviewCount}개`}>
-              <span aria-hidden="true">☆</span> {Number(reason.avgRating).toFixed(1)} <span className="chat-reason-count">({reason.reviewCount.toLocaleString('ko-KR')})</span>
+            <span className="chat-reason-badge rating" aria-label={`평점 ${Number(reason.avgRating).toFixed(1)}점, 리뷰 ${reason.reviewCount}개`}>
+              <span aria-hidden="true">★</span> {Number(reason.avgRating).toFixed(1)} <span className="chat-reason-count">({reason.reviewCount.toLocaleString('ko-KR')})</span>
             </span>
           )}
           {mentions.map((mention) => (
@@ -27,7 +27,7 @@ export default function ProductReason({ reason }) {
       {reason.summary && (
         <p className="chat-reason-summary">
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><path d="M4 3.5h12a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H8l-4.5 3v-3A1.5 1.5 0 0 1 2 13V5a1.5 1.5 0 0 1 2-1.5Z" /></svg>
-          <span><span className="chat-reason-summary-label">리뷰 요약</span>{reason.summary}</span>
+          <span><span className="chat-reason-summary-label">[리뷰요약]</span>{reason.summary}</span>
         </p>
       )}
       {!hasRating && !reason.summary && <p className="chat-reason-empty">{reason.reviewCount != null && reason.reviewCount < 5 ? '아직 리뷰가 적어요.' : '아직 표시할 리뷰 근거가 없어요.'}</p>}

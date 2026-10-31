@@ -37,16 +37,15 @@ export default function QuoteCard({ message, disabled, onSubstitute, onBudgetOpt
           <li key={item.productId}>
             <div className="chat-item-heading">
               <strong>{productLabel(item)}</strong>
-              <span>{money(item.unitPrice)} × {item.quantity}</span>
               <b>{money(item.lineAmount)}</b>
             </div>
+            <ProductReason reason={item.reason} />
             <div className="chat-item-actions" role="group" aria-label={`${item.productName} 수량 변경`}>
               <button type="button" disabled={inactive} aria-label={`${item.productName} ${item.quantity === 1 ? '삭제' : '수량 줄이기'}`} title={item.quantity === 1 ? '1개에서 줄이면 상품이 삭제됩니다' : '수량 줄이기'} onClick={() => onUpdateItem(quote.quoteId, item.productId, item.quantity - 1)}>−</button>
               <span aria-label={`현재 수량 ${item.quantity}개`}>{item.quantity}</span>
               <button type="button" disabled={inactive || item.quantity >= 10} aria-label={`${item.productName} 수량 늘리기`} title="최대 10개" onClick={() => onUpdateItem(quote.quoteId, item.productId, item.quantity + 1)}>+</button>
               <button type="button" className="chat-item-remove" disabled={inactive} aria-label={`${item.productName} 삭제`} onClick={() => onUpdateItem(quote.quoteId, item.productId, 0)}>삭제</button>
             </div>
-            <ProductReason reason={item.reason} />
           </li>
         ))}</ul>
         {(quote.substitutes || []).map((item) => <div className="chat-substitute" key={item.ingredientName}><p>{item.soldOutProductName} 품절이에요. <b>{item.item.productName} ({money(item.item.lineAmount)})</b>으로 바꿔 담을까요?</p><button disabled={inactive} onClick={() => onSubstitute(quote.quoteId, item.ingredientName, true)} className="filled">좋아요</button><button disabled={inactive} onClick={() => onSubstitute(quote.quoteId, item.ingredientName, false)}>빼 주세요</button></div>)}
