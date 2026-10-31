@@ -9,6 +9,7 @@ import OrderListPage from './pages/OrderListPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductListPage from './pages/ProductListPage';
 import SignupPage from './pages/SignupPage';
+import SignupSocialPage from './pages/SignupSocialPage';
 
 // 메인·상품은 로그인 없이 볼 수 있고, 채팅·주문은 로그인해야 들어갈 수 있음
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
+        <Route path="signup/social" element={<SignupSocialPage />} />
         <Route path="products" element={<ProductListPage />} />
         <Route path="products/:productCode" element={<ProductDetailPage />} />
         <Route element={<RequireAuth />}>
