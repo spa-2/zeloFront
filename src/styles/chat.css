@@ -1,7 +1,7 @@
 .chat-workspace { display:grid; grid-template-columns:250px minmax(0,1fr); gap:20px; min-height:calc(100dvh - 140px); font-size:13px; }
 .chat-workspace button { cursor:pointer; transition:background .15s, opacity .15s; }
 .chat-workspace button:disabled { cursor:default; opacity:.45; }
-.chat-workspace button:focus-visible,.chat-workspace input:focus-visible { outline:2px solid var(--color-zelo-orange); outline-offset:3px; }
+.chat-workspace button:focus-visible { outline:2px solid var(--color-zelo-orange); outline-offset:3px; }
 .chat-sidebar { align-self:start; position:sticky; top:100px; }
 .chat-new { width:100%; border-radius:30px; padding:10px; background:var(--color-zelo-green); color:var(--color-zelo-card); font-weight:700; }
 .chat-sidebar h2 { font-family:var(--font-label); letter-spacing:.2em; font-size:10px; color:var(--color-zelo-green); margin:16px 2px 10px; }
@@ -48,6 +48,7 @@
 .chat-quote-total small { display:block; font-size:10px; opacity:.75; margin-top:4px; }
 .chat-composer { position:sticky; bottom:16px; display:flex; gap:12px; padding:8px 10px 8px 20px; border:1.5px solid var(--color-zelo-green); border-radius:35px; background:var(--color-zelo-card); margin-top:auto; margin-left:44px; }
 .chat-composer input { flex:1; min-width:0; outline:none; background:transparent; }
+.chat-composer:focus-within { box-shadow:0 0 0 1px var(--color-zelo-green); }
 .chat-composer button { width:38px; height:38px; background:var(--color-zelo-green); color:var(--color-zelo-card); border-radius:50%; font-size:25px; }
 .chat-status,.chat-history { color:var(--color-zelo-sub); text-align:center; padding:12px; }
 .chat-error { color:var(--color-zelo-orange); border:1px solid currentColor; border-radius:12px; padding:12px; }
@@ -136,3 +137,5 @@
 .chat-retry,.chat-quote-toggle { margin-top:10px; border:1px solid var(--color-zelo-green); border-radius:16px; padding:9px 14px; color:var(--color-zelo-green); background:var(--color-zelo-card); font-size:12px; }
 .chat-quote-toggle { width:100%; text-align:left; }
 .chat-change-notice { color:var(--color-zelo-green); font-size:12px; padding:8px 0; }
+
+.chat-avatar > span { display:block; line-height:1; transform:translateX(-0.06em); }
