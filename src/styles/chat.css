@@ -136,3 +136,5 @@
 .chat-retry,.chat-quote-toggle { margin-top:10px; border:1px solid var(--color-zelo-green); border-radius:16px; padding:9px 14px; color:var(--color-zelo-green); background:var(--color-zelo-card); font-size:12px; }
 .chat-quote-toggle { width:100%; text-align:left; }
 .chat-change-notice { color:var(--color-zelo-green); font-size:12px; padding:8px 0; }
+
+.chat-avatar > span { display:block; line-height:1; transform:translateX(-0.06em); }

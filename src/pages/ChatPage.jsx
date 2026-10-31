@@ -231,7 +231,7 @@ export default function ChatPage() {
         <div ref={listRef} role="log" aria-label="대화 내용" className="chat-messages">
           {messages.map((message) => (
             <article key={message.messageId} className={`chat-message ${message.sender === 'USER' ? 'user' : 'assistant'}`}>
-              {message.sender !== 'USER' && <span className="chat-avatar" aria-label="ZELO">Z</span>}
+              {message.sender !== 'USER' && <span className="chat-avatar" aria-label="ZELO"><span aria-hidden="true">Z</span></span>}
               <div className="chat-message-body">
                 {messageText(message) && <p className="chat-bubble">{messageText(message)}</p>}
                 {message.retryable && message.messageId === latestMessageId && <button className="chat-retry" disabled={sending || loading} onClick={() => changeQuote(() => retryMessage(roomId, message.messageId), '답변 재시도 결과를 확인해 주세요.')}>답변 다시 시도</button>}
@@ -243,7 +243,7 @@ export default function ChatPage() {
         {outgoing && <article className="chat-message user"><div className="chat-message-body"><p className="chat-bubble">{outgoing}</p><small className="chat-status">전송 중…</small></div></article>}
         {changeNotice && <p role="status" className="chat-change-notice">{changeNotice}</p>}
         {loading && <p role="status" className="chat-status">대화를 불러오는 중이에요…</p>}
-        {!loading && !sending && !messages.length && !error && <div className="chat-welcome"><span className="chat-avatar">Z</span><h1>오늘은 무엇을 먹을까요?</h1><p>메뉴와 인원, 예산을 알려 주세요.<br />필요한 재료를 ZELO가 골라 담을게요.</p></div>}
+        {!loading && !sending && !messages.length && !error && <div className="chat-welcome"><span className="chat-avatar" aria-label="ZELO"><span aria-hidden="true">Z</span></span><h1>오늘은 무엇을 먹을까요?</h1><p>메뉴와 인원, 예산을 알려 주세요.<br />필요한 재료를 ZELO가 골라 담을게요.</p></div>}
         {sending && <p role="status" className="chat-status">{roomId ? operation || '답변을 준비하고 있어요…' : '채팅방을 만들고 답변을 준비하고 있어요…'}</p>}
         <form onSubmit={submit} className="chat-composer">
           <input aria-label="메시지" value={text} onChange={(event) => { setText(event.target.value); drafts.current[roomId || 'new'] = event.target.value; }} maxLength={1000} disabled={sending || loading} placeholder="먹고 싶은 메뉴를 말해 주세요" />
