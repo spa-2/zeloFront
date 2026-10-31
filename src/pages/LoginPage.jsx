@@ -80,6 +80,8 @@ export default function LoginPage() {
       )}
       <p className="mt-4 text-sm text-stone-600">
         처음이신가요? <Link to="/signup" className="text-emerald-700">회원가입</Link>
+        {' · '}
+        <Link to="/password/reset" className="text-emerald-700">비밀번호 찾기</Link>
       </p>
     </div>
   );

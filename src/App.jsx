@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import OrderListPage from './pages/OrderListPage';
+import PasswordResetPage from './pages/PasswordResetPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductListPage from './pages/ProductListPage';
 import SignupPage from './pages/SignupPage';
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
         <Route path="signup/social" element={<SignupSocialPage />} />
+        <Route path="password/reset" element={<PasswordResetPage />} />
         <Route path="products" element={<ProductListPage />} />
         <Route path="products/:productCode" element={<ProductDetailPage />} />
         <Route element={<RequireAuth />}>
