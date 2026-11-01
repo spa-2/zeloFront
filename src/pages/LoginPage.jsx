@@ -44,6 +44,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-sm">
       <h1 className="mb-6 text-xl font-bold">로그인</h1>
+      {location.state?.notice && <p className="mb-4 text-sm text-zelo-green">{location.state.notice}</p>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           type="email"
