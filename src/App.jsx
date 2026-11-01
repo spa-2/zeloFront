@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import RequireAuth from './components/RequireAuth';
 import ChatPage from './pages/ChatPage';
 import HomePage from './pages/HomePage';
+import LoginCallbackPage from './pages/LoginCallbackPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import OrderListPage from './pages/OrderListPage';
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
         <Route path="signup/social" element={<SignupSocialPage />} />
+        <Route path="auth/:provider/callback" element={<LoginCallbackPage />} />
         <Route path="password/reset" element={<PasswordResetPage />} />
         <Route path="products" element={<ProductListPage />} />
         <Route path="products/:productCode" element={<ProductDetailPage />} />
