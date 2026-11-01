@@ -13,9 +13,10 @@
   transition: transform .25s ease, box-shadow .25s ease;
 }
 .product-card:hover { transform: translate(-3px, -3px); box-shadow: 10px 10px 0 var(--color-zelo-green); }
-/* 상품 사진이 아직 없어서 점무늬 칸에 카테고리 이름을 크게 둠 */
+/* 상품 사진이 아직 없어서 점무늬 칸에 카테고리 아이콘을 둠 */
 .product-thumb {
-  aspect-ratio: 1 / 1; max-width: 100%; display: grid; place-items: center; position: relative; overflow: hidden; padding: 16px;
+  aspect-ratio: 1 / 1; max-width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  position: relative; overflow: hidden; padding: 16px;
   background: radial-gradient(circle, rgba(4, 106, 56, .16) 1.2px, transparent 1.6px) 0 0 / 7px 7px, #f3e1c6;
   border-bottom: 2px solid var(--color-zelo-green);
 }
@@ -24,7 +25,8 @@
   transition: transform .45s cubic-bezier(.3, 1.4, .5, 1);
 }
 .product-card:hover .product-thumb::before { transform: scale(1.3); }
-.product-thumb span { position: relative; font-family: "Black Han Sans", sans-serif; font-size: 22px; color: var(--color-zelo-green); text-align: center; line-height: 1.2; word-break: keep-all; }
+.product-icon { position: relative; width: 38%; height: auto; color: var(--color-zelo-green); transition: transform .3s ease; }
+.product-card:hover .product-icon { transform: scale(1.12) rotate(-6deg); }
 .product-rank {
   position: absolute; left: 10px; top: 10px; z-index: 1; min-width: 34px; height: 34px; padding: 0 8px; border-radius: 17px;
   background: var(--color-zelo-orange); color: var(--color-zelo-ivory); display: grid; place-items: center;

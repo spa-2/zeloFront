@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { errorMessage } from '../api/client';
 import { getProduct } from '../api/products';
+import { categoryIcon } from '../components/product/categoryIcons';
 import { KEYWORD_LABELS } from '../constants/keywords';
 import '../styles/products.css';
 
@@ -59,12 +60,13 @@ export default function ProductDetailPage() {
     return <p className="text-zelo-sub">불러오는 중…</p>;
   }
   const unavailable = product.status === 'STOP_SALE' || (product.availableQuantity ?? 0) <= 0;
+  const Icon = categoryIcon(product.categoryName);
   return (
     <div className="flex flex-col gap-6">
       {backButton}
       <article className="flex flex-wrap overflow-hidden rounded-[28px] border-2 border-zelo-green bg-zelo-card shadow-[8px_10px_0_rgba(4,106,56,.14)]">
         <div className={`product-thumb min-w-0 flex-[1_1_320px] !border-b-0 md:!border-r-2 ${unavailable ? 'grayscale' : ''}`}>
-          <span className="!text-4xl">{product.categoryName}</span>
+          <Icon className="product-icon" strokeWidth={1.4} aria-hidden="true" />
         </div>
         <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-4 p-8">
           <p className="font-label text-xs tracking-[.2em] text-zelo-orange">{product.categoryName}</p>

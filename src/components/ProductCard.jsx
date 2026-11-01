@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
+import { categoryIcon } from './product/categoryIcons';
 import '../styles/products.css';
 
 // 상품 카드. 메인 인기 상품과 상품 목록에서 같이 씀. rank를 주면 왼쪽 위에 순위를 붙임
 export default function ProductCard({ product, rank }) {
   const soldOut = (product.availableQuantity ?? 0) <= 0;
+  const Icon = categoryIcon(product.categoryName);
   return (
     <Link to={`/products/${product.productCode}`} className={`product-card${soldOut ? ' out' : ''}`}>
       <div className="product-thumb">
         {rank && <b className="product-rank">{rank}</b>}
         {soldOut && <b className="soldout-badge">SOLD OUT</b>}
-        <span>{product.categoryName}</span>
+        <Icon className="product-icon" strokeWidth={1.6} aria-label={product.categoryName} />
       </div>
       <div className="product-info">
         <span className="brand">{product.brand}</span>
