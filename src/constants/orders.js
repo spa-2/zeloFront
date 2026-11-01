@@ -6,6 +6,14 @@ export const ORDER_STATUS_LABELS = {
     CANCELED: '주문 취소',
 };
 
+export const PAYMENT_STATUS_LABELS = {
+    READY: '결제 시작',
+    CONFIRM_PENDING: '결제 확인 중',
+    PAID: '결제 완료',
+    FAILED: '결제 실패',
+    CANCELED: '결제 취소',
+};
+
 export const DELIVERY_STATUS_LABELS = {
     READY: '배송 준비',
     SHIPPING: '배송 중',

@@ -6,8 +6,10 @@ import { useAuthStore } from '../store/authStore';
 const menus = [
   { to: '/products', label: 'SHOP ALL' },
   { to: '/chat', label: 'AI 장보기' },
-  { to: '/orders', label: '주문 내역' },
 ];
+
+// MY 탭에 속한 화면. 이 화면들에 있으면 헤더의 MY에 밑줄을 그음 (배송지 화면이 생기면 추가)
+const MY_PATHS = ['/orders', '/payment-methods'];
 
 // 메인 첫 화면 위에서는 아이보리, 첫 화면을 지나거나 다른 화면이면 초록
 function useSolidHeader(isHome) {
@@ -31,6 +33,7 @@ export default function Layout() {
   const { pathname } = useLocation();
   const isHome = pathname === '/';
   const solid = useSolidHeader(isHome);
+  const isMyPage = MY_PATHS.some((path) => pathname.startsWith(path));
   const [keyword, setKeyword] = useState('');
 
   async function handleLogout() {
@@ -82,6 +85,14 @@ export default function Layout() {
               className="w-full rounded-full border-2 border-current bg-transparent px-3.5 py-2 text-sm outline-none placeholder:text-current placeholder:opacity-60"
             />
           </form>
+          <NavLink
+            to="/orders"
+            className={`border-b-2 pb-0.5 font-logo text-[13px] tracking-[.08em] ${
+              isMyPage ? 'border-zelo-orange' : 'border-transparent hover:border-zelo-orange'
+            }`}
+          >
+            MY
+          </NavLink>
           {accessToken ? (
             <button type="button" onClick={handleLogout} className="text-sm font-medium">
               로그아웃

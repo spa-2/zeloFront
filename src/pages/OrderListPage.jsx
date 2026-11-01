@@ -4,6 +4,7 @@ import { errorMessage } from '../api/client';
 import { getMyOrders } from '../api/orders';
 import OrderStatusBadge from '../components/order/OrderStatusBadge';
 import { formatDateTime, formatMoney } from '../components/order/orderFormat';
+import MyTabs from '../components/order/MyTabs';
 
 // 페이지 번호는 주소에 둬서 상세 갔다가 뒤로 와도 보던 페이지가 남음
 export default function OrderListPage() {
@@ -34,6 +35,7 @@ export default function OrderListPage() {
 
   return (
       <div className="flex flex-col gap-8">
+        <MyTabs />
         <div className="flex flex-col gap-2">
           <p className="font-label text-xs tracking-[.2em] text-zelo-orange">MY ORDERS</p>
           <h1 className="font-display text-5xl text-zelo-green">주문 내역</h1>
