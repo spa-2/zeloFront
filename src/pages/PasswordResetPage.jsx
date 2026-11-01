@@ -36,6 +36,17 @@ export default function PasswordResetPage() {
     }
   }
 
+  // 이메일은 남겨 두고 고칠 수 있게 함. 티켓은 지난 이메일 기준이라 버림
+  function handleRestart() {
+    setStep('email');
+    setCode('');
+    setTicket('');
+    setPassword('');
+    setPasswordConfirm('');
+    setError('');
+    setNotice('');
+  }
+
   function handleSend(event) {
     event.preventDefault();
     return run(async () => {
@@ -73,7 +84,7 @@ export default function PasswordResetPage() {
     return run(async () => {
       await resetPassword({ email, emailVerificationTicket: ticket, password, passwordConfirm });
       setStep('done');
-    }, '비밀번호를 바꾸지 못했어요. 처음부터 다시 시도해 주세요');
+    }, '비밀번호를 바꾸지 못했어요. 아래 버튼으로 처음부터 다시 시작해 주세요');
   }
 
   return (
@@ -162,6 +173,11 @@ export default function PasswordResetPage() {
           {step === 'code' && (
             <button type="button" onClick={handleResend} disabled={submitting} className="text-sm text-zelo-green hover:underline disabled:opacity-50">
               코드를 못 받았어요. 다시 보내기
+            </button>
+          )}
+          {step !== 'email' && (
+            <button type="button" onClick={handleRestart} disabled={submitting} className="text-sm text-zelo-sub hover:underline disabled:opacity-50">
+              {step === 'code' ? '이메일을 잘못 입력했어요' : '처음부터 다시 시작하기'}
             </button>
           )}
         </form>
