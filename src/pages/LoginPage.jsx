@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { isDevChatLoginEnabled, login, loginDevChat } from '../api/auth';
 import { errorMessage } from '../api/client';
+import SocialLoginButtons from '../components/auth/SocialLoginButtons';
 import { useAuthStore } from '../store/authStore';
 
 export default function LoginPage() {
@@ -44,6 +45,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-sm">
       <h1 className="mb-6 text-xl font-bold">로그인</h1>
+      {location.state?.notice && <p className="mb-4 text-sm text-zelo-green">{location.state.notice}</p>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           type="email"
@@ -70,6 +72,12 @@ export default function LoginPage() {
           {submitting ? '로그인 중…' : '로그인'}
         </button>
       </form>
+      <div className="my-5 flex items-center gap-3 text-xs text-zelo-sub">
+        <span className="h-px flex-1 bg-zelo-line" />
+        또는
+        <span className="h-px flex-1 bg-zelo-line" />
+      </div>
+      <SocialLoginButtons />
       {isDevChatLoginEnabled() && (
         <div className="mt-6 rounded-xl border border-zelo-line p-4">
           <button type="button" onClick={handleDevLogin} disabled={submitting} className="h-11 rounded-full border-2 border-zelo-green px-5 font-medium text-zelo-green disabled:opacity-50">
