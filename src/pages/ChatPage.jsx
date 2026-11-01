@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { chooseBudgetOption, chooseSubstitute, getRooms, getMessages, sendMessage, startChat, updateQuoteItem, retryMessage } from '../api/chat';
 import { errorMessage } from '../api/client';
 import QuoteCard from '../components/chat/QuoteCard';
+import PaymentResultCard from '../components/order/PaymentResultCard';
 import { mergeMessages, messageText } from '../components/chat/messageState';
 import '../styles/chat.css';
 
@@ -236,6 +237,7 @@ export default function ChatPage() {
                 {messageText(message) && <p className="chat-bubble">{messageText(message)}</p>}
                 {message.retryable && message.messageId === latestMessageId && <button className="chat-retry" disabled={sending || loading} onClick={() => changeQuote(() => retryMessage(roomId, message.messageId), '답변 재시도 결과를 확인해 주세요.')}>답변 다시 시도</button>}
                 {message.payload?.type === 'QUOTE_CARD' && <QuoteCard message={message} disabled={sending || loading} onUpdateItem={(quoteId, productId, quantity) => changeQuote(() => updateQuoteItem(roomId, { quoteId, productId, quantity }), '상품 수량·삭제 요청 결과를 확인해 주세요.')} onSubstitute={(quoteId, ingredientName, accept) => changeQuote(() => chooseSubstitute(roomId, { quoteId, ingredientName, accept }))} onBudgetOption={(quoteId, productId) => changeQuote(() => chooseBudgetOption(roomId, { quoteId, productId }))} />}
+                {message.payload?.type === 'PAYMENT_CARD' && <PaymentResultCard message={message} />}
               </div>
             </article>
           ))}
