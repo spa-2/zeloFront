@@ -31,8 +31,3 @@ export const REFUND_TYPE_LABELS = {
   FULL: "전액 환불",
   PARTIAL: "부분 환불",
 };
-
-export const PAYMENT_STATUS_LABELS = {
-  FULL: "전액 환불",
-  PARTIAL: "부분 환불",
-};
