@@ -31,9 +31,10 @@ async function loadCustomer() {
     return address ? { fullName: address.recipientName, phoneNumber: address.recipientPhone } : {};
 }
 
-export default function PaymentStep({ roomId, quote, onDone }) {
+// 견적에서 처음 결제하면 quote를, 결제 실패 카드에서 다시 결제하면 이미 만든 주문(placedOrder)을 받음
+export default function PaymentStep({ roomId, quote, placedOrder, onDone }) {
     const [methods, setMethods] = useState(null);
-    const [order, setOrder] = useState(null);
+    const [order, setOrder] = useState(placedOrder ?? null);
     const [now, setNow] = useState(() => Date.now());
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
@@ -44,6 +45,7 @@ export default function PaymentStep({ roomId, quote, onDone }) {
         ? new Date(order.createdAt).getTime() + ORDER_PAYMENT_MINUTES * 60 * 1000
         : new Date(quote.expiresAt).getTime();
     const expired = now >= deadline;
+    const totalAmount = order?.totalAmount ?? quote.totalAmount;
 
     useEffect(() => {
         const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -149,7 +151,7 @@ export default function PaymentStep({ roomId, quote, onDone }) {
     return (
         <section className="flex max-w-md flex-col gap-3 rounded-3xl border-2 border-zelo-green bg-zelo-card p-5">
             <div className="flex items-baseline justify-between gap-3">
-                <h3 className="font-display text-xl text-zelo-green">결제 · {formatMoney(quote.totalAmount)}</h3>
+                <h3 className="font-display text-xl text-zelo-green">결제 · {formatMoney(totalAmount)}</h3>
                 <span className="font-label text-xs text-zelo-sub">{formatRemaining(deadline - now)}</span>
             </div>
 
