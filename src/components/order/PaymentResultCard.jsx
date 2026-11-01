@@ -4,7 +4,17 @@ import { formatDateTime, formatMoney } from './orderFormat';
 // 채팅이 길어지지 않게 상품은 몇 개만 보여 주고 나머지는 개수로 줄임
 const VISIBLE_ITEM_COUNT = 3;
 
-// 백엔드가 결제 결과마다 안내 문구를 content에 같이 남기므로 제목은 그 문구를 그대로 씀
+// 안내 문구는 채팅 말풍선(content)으로 이미 보여서, 카드 제목은 결과만 짧게 보여 줌
+function resultTitle(payment) {
+    if (payment.status === 'PAID') {
+        return '결제 완료';
+    }
+    if (payment.status === 'FAILED') {
+        return '결제 실패';
+    }
+    return payment.paidAmount != null ? '환불 완료' : '결제 취소';
+}
+
 export default function PaymentResultCard({ message }) {
     const payment = message.payload;
     const paid = payment.status === 'PAID';
@@ -20,7 +30,7 @@ export default function PaymentResultCard({ message }) {
         >
             <div className="flex flex-col gap-1">
                 <span className={`font-label text-xs tracking-[.2em] ${accent}`}>PAYMENT</span>
-                <h3 className={`font-display text-2xl ${accent}`}>{message.content}</h3>
+                <h3 className={`font-display text-2xl ${accent}`}>{resultTitle(payment)}</h3>
                 {payment.failureReason && <p className="text-sm text-zelo-sub">{payment.failureReason}</p>}
             </div>
 
@@ -29,9 +39,9 @@ export default function PaymentResultCard({ message }) {
                 <ul className="flex flex-col text-sm">
                     {visibleItems.map((item, index) => (
                         <li key={`${item.productName}-${index}`} className="flex justify-between gap-3 py-0.5">
-              <span className="min-w-0 truncate">
-                {item.productName} {item.productUnit} × {item.quantity}
-              </span>
+                            <span className="min-w-0 truncate">
+                                {item.productName} {item.productUnit} × {item.quantity}
+                            </span>
                             <span className="shrink-0">{formatMoney(item.lineAmount)}</span>
                         </li>
                     ))}
