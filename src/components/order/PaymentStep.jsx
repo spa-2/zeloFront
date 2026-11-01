@@ -37,6 +37,7 @@ export default function PaymentStep({ roomId, quote, onDone }) {
     const [now, setNow] = useState(() => Date.now());
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
+    const [loadFailed, setLoadFailed] = useState(false);
 
     // 주문 전에는 견적 만료 시각까지, 주문 후에는 주문 결제 기한까지 결제할 수 있음
     const deadline = order
@@ -54,19 +55,19 @@ export default function PaymentStep({ roomId, quote, onDone }) {
         getPaymentMethods()
             // 백엔드는 등록 순서대로 주므로 뒤집어서 최근 등록 카드를 맨 위에 둠
             .then((data) => !ignore && setMethods([...data].reverse()))
-            .catch((e) => !ignore && setError(errorMessage(e)));
+            .catch(() => !ignore && setLoadFailed(true));
         return () => {
             ignore = true;
         };
     }, []);
 
     async function reloadMethods() {
-        setError('');
+        setLoadFailed(false);
         try {
             const data = await getPaymentMethods();
             setMethods([...data].reverse());
-        } catch (e) {
-            setError(errorMessage(e));
+        } catch {
+            setLoadFailed(true);
         }
     }
 
@@ -84,13 +85,18 @@ export default function PaymentStep({ roomId, quote, onDone }) {
 
     // 결제창 결과는 믿지 않고, 창이 닫히면 성공·실패와 관계없이 서버에 확인을 맡김
     async function payWithWindow(target) {
-        await requestCardPayment({
+        const response = await requestCardPayment({
             portoneId: target.portoneId,
             orderName: target.orderName,
             totalAmount: target.totalAmount,
             customer: await loadCustomer(),
         });
-        return confirmPayment(target.portoneId);
+        const result = await confirmPayment(target.portoneId);
+        // 창을 그냥 닫으면 서버가 확인 대기를 줄 수 있어서, 창에서 오류가 왔으면 완료로 보지 않음
+        if (response?.code && result.status !== 'PAID') {
+            return { ...result, status: 'NOT_COMPLETED', message: response.message ?? '결제가 완료되지 않았어요.' };
+        }
+        return result;
     }
 
     async function pay(method) {
@@ -147,12 +153,10 @@ export default function PaymentStep({ roomId, quote, onDone }) {
                 <span className="font-label text-xs text-zelo-sub">{formatRemaining(deadline - now)}</span>
             </div>
 
-            {error && <p className="text-sm text-zelo-orange">{error}</p>}
-            {!methods && !error && <p className="text-sm text-zelo-sub">카드를 불러오는 중…</p>}
-
-            {methods && methods.length === 0 && (
-                <div className="flex flex-col gap-2 rounded-2xl border-2 border-dashed border-zelo-orange p-3 text-sm text-zelo-orange">
-                    <p>등록된 카드가 없어요. 카드를 등록하거나 일반결제를 골라 주세요.</p>
+            {/* 목록을 못 불러왔을 때만 다시 불러오기가 의미 있음. 결제 실패는 결제 수단을 다시 고르면 재결제됨 */}
+            {loadFailed && (
+                <div className="flex flex-col gap-2 text-sm text-zelo-orange">
+                    <p>카드 목록을 불러오지 못했어요.</p>
                     <button
                         type="button"
                         disabled={busy}
@@ -162,6 +166,19 @@ export default function PaymentStep({ roomId, quote, onDone }) {
                         다시 시도
                     </button>
                 </div>
+            )}
+            {error && (
+                <div className="text-sm text-zelo-orange">
+                    <p>{error}</p>
+                    {order && <p>결제 수단을 다시 골라 주세요.</p>}
+                </div>
+            )}
+            {!methods && !loadFailed && <p className="text-sm text-zelo-sub">카드를 불러오는 중…</p>}
+
+            {methods && methods.length === 0 && (
+                <p className="rounded-2xl border-2 border-dashed border-zelo-orange p-3 text-sm text-zelo-orange">
+                    등록된 카드가 없어요. 카드를 등록하거나 일반결제를 골라 주세요.
+                </p>
             )}
 
             {methods?.map((method, index) => (

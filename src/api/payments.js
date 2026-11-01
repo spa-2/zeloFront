@@ -60,14 +60,14 @@ export async function retryPayment(orderId) {
     return res.data.data;
 }
 
-// 일반결제 창(KG이니시스)을 띄움. 결제 결과는 서버가 포트원에 다시 확인하므로 여기서는 창이 닫히기만 기다림
+// 일반결제 창(KG이니시스)을 띄움. 결제 확정은 서버가 포트원에 다시 확인하고, 창 결과는 그만뒀는지 안내할 때만 씀
 export async function requestCardPayment({ portoneId, orderName, totalAmount, customer }) {
     const storeId = import.meta.env.VITE_PORTONE_STORE_ID;
     const channelKey = import.meta.env.VITE_PORTONE_PAYMENT_CHANNEL_KEY;
     if (!storeId || !channelKey) {
         throw new Error('포트원 설정(.env)이 없어요');
     }
-    await PortOne.requestPayment({
+    return PortOne.requestPayment({
         storeId,
         channelKey,
         paymentId: portoneId,
