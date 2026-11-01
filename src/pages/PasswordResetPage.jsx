@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { confirmEmailVerification, resetPassword, sendEmailVerification } from '../api/auth';
 import { errorMessage } from '../api/client';
+import useCooldown from '../components/auth/useCooldown';
 
 const PURPOSE = 'PASSWORD_RESET';
 // 백엔드 비밀번호 규칙과 같음: 영문·숫자·특수문자 모두 포함, 공백 없이 8~72자
@@ -22,6 +23,7 @@ export default function PasswordResetPage() {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [resendWait, startResendWait] = useCooldown(5);
 
   async function run(action, failMessage) {
     setError('');
@@ -51,6 +53,7 @@ export default function PasswordResetPage() {
     event.preventDefault();
     return run(async () => {
       await sendEmailVerification(email, PURPOSE);
+      startResendWait();
       setStep('code');
       setNotice('메일로 6자리 인증 코드를 보냈어요');
     }, '인증 메일을 보내지 못했어요');
@@ -59,6 +62,7 @@ export default function PasswordResetPage() {
   function handleResend() {
     return run(async () => {
       await sendEmailVerification(email, PURPOSE);
+      startResendWait();
       setNotice('인증 코드를 다시 보냈어요');
     }, '인증 메일을 보내지 못했어요');
   }
@@ -171,8 +175,8 @@ export default function PasswordResetPage() {
             {{ email: '인증 코드 받기', code: '코드 확인', password: '비밀번호 바꾸기' }[step]}
           </button>
           {step === 'code' && (
-            <button type="button" onClick={handleResend} disabled={submitting} className="text-sm text-zelo-green hover:underline disabled:opacity-50">
-              코드를 못 받았어요. 다시 보내기
+            <button type="button" onClick={handleResend} disabled={submitting || resendWait > 0} className="text-sm text-zelo-green hover:underline disabled:opacity-50">
+              코드를 못 받았어요. 다시 보내기{resendWait > 0 && ` (${resendWait})`}
             </button>
           )}
           {step !== 'email' && (

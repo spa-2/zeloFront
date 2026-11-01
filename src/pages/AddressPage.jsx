@@ -3,6 +3,7 @@ import { useKakaoPostcodePopup } from 'react-daum-postcode';
 import { createAddress, deleteAddress, getAddresses, updateAddress } from '../api/addresses';
 import { errorMessage } from '../api/client';
 import MyTabs from '../components/order/MyTabs';
+import toAddress from '../components/toAddress';
 
 const EMPTY_FORM = {
     place: '',
@@ -18,12 +19,6 @@ const EMPTY_FORM = {
 const PHONE_PATTERN = '01[016-9]-\\d{3,4}-\\d{4}|01[016-9]\\d{7,8}';
 const INPUT_CLASS = 'rounded-full border-2 border-zelo-line bg-zelo-ivory px-4 py-2 read-only:text-zelo-sub';
 const SMALL_BUTTON_CLASS = 'rounded-full border-2 border-zelo-green px-3 py-1 text-sm font-medium text-zelo-green disabled:opacity-50';
-
-// 카카오 우편번호 결과를 한 줄 주소로 만듦. 도로명 주소면 동 이름과 건물명을 괄호로 붙임
-function toAddress(data) {
-    const extras = data.addressType === 'R' ? [data.bname, data.buildingName].filter(Boolean) : [];
-    return extras.length > 0 ? `${data.address} (${extras.join(', ')})` : data.address;
-}
 
 export default function AddressPage() {
     const openPostcode = useKakaoPostcodePopup();
