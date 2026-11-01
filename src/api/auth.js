@@ -15,6 +15,22 @@ export async function signup(request) {
   return res.data.data;
 }
 
+// purpose: SIGNUP | PASSWORD_RESET. 메일로 6자리 코드가 감
+export async function sendEmailVerification(email, purpose) {
+  await client.post('/api/auth/email-verifications', { email, purpose });
+}
+
+// 코드가 맞으면 다음 단계(가입, 비밀번호 초기화)에서 쓸 emailVerificationTicket을 돌려줌
+export async function confirmEmailVerification(email, purpose, code) {
+  const res = await client.post('/api/auth/email-verifications/confirm', { email, purpose, code });
+  return res.data.data.emailVerificationTicket;
+}
+
+// 요청 필드: email, emailVerificationTicket, password, passwordConfirm
+export async function resetPassword(request) {
+  await client.post('/api/users/password-reset', request);
+}
+
 // 소셜 로그인 요청 필드: code, redirectUri, codeVerifier(PKCE를 쓰는 소셜만, 선택)
 // 응답: 기존 회원이면 { signupRequired: false, accessToken }, 처음이면 { signupRequired: true, signupTicket, email, name }
 export async function socialLogin(provider, request) {
