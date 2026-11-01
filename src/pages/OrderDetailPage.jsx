@@ -4,6 +4,7 @@ import { errorMessage } from '../api/client';
 import { getOrder } from '../api/orders';
 import OrderSection from '../components/order/OrderSection';
 import OrderStatusBadge from '../components/order/OrderStatusBadge';
+import RefundForm from '../components/order/RefundForm';
 import { formatDateTime, formatMoney } from '../components/order/orderFormat';
 import {
     DELIVERY_STATUS_LABELS,
@@ -18,6 +19,7 @@ export default function OrderDetailPage() {
     const navigate = useNavigate();
     const [order, setOrder] = useState(null);
     const [error, setError] = useState('');
+    const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
         let ignore = false;
@@ -27,7 +29,7 @@ export default function OrderDetailPage() {
         return () => {
             ignore = true;
         };
-    }, [orderId]);
+    }, [orderId, reloadKey]);
 
     // 목록에서 왔으면 뒤로 가서 보던 페이지를 살리고, 주소로 바로 들어왔으면 목록으로
     function goBack() {
@@ -86,6 +88,7 @@ export default function OrderDetailPage() {
                         </li>
                     ))}
                 </ul>
+                <RefundForm order={order} onDone={() => setReloadKey((key) => key + 1)} />
             </OrderSection>
 
             <div className="grid gap-6 md:grid-cols-2">
