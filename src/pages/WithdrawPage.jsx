@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout, sendWithdrawalCode, verifyWithdrawalCode } from '../api/auth';
 import { errorMessage } from '../api/client';
+import useCooldown from '../components/auth/useCooldown';
 import { useAuthStore } from '../store/authStore';
 
 // 정보 보관 기간과 재가입 정책이 정해지면 여기에 안내를 추가
@@ -25,6 +26,7 @@ export default function WithdrawPage() {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [resendWait, startResendWait] = useCooldown(5);
 
   async function run(action, failMessage) {
     setError('');
@@ -43,6 +45,7 @@ export default function WithdrawPage() {
     event.preventDefault();
     return run(async () => {
       await sendWithdrawalCode();
+      startResendWait();
       setStep('code');
       setNotice('가입한 이메일로 6자리 인증 코드를 보냈어요');
     }, '인증 메일을 보내지 못했어요');
@@ -51,6 +54,7 @@ export default function WithdrawPage() {
   function handleResend() {
     return run(async () => {
       await sendWithdrawalCode();
+      startResendWait();
       setCode('');
       setNotice('인증 코드를 다시 보냈어요');
     }, '인증 메일을 보내지 못했어요');
@@ -127,8 +131,8 @@ export default function WithdrawPage() {
         </button>
         {step === 'code' && (
           <>
-            <button type="button" onClick={handleResend} disabled={submitting} className="text-sm text-zelo-green hover:underline disabled:opacity-50">
-              코드를 못 받았어요. 다시 보내기
+            <button type="button" onClick={handleResend} disabled={submitting || resendWait > 0} className="text-sm text-zelo-green hover:underline disabled:opacity-50">
+              코드를 못 받았어요. 다시 보내기{resendWait > 0 && ` (${resendWait})`}
             </button>
             <button type="button" onClick={handleBack} disabled={submitting} className="text-sm text-zelo-sub hover:underline disabled:opacity-50">
               처음으로 돌아가기

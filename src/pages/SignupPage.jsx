@@ -1,5 +1,12 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { useKakaoPostcodePopup } from 'react-daum-postcode';
+import { Link, useNavigate } from 'react-router-dom';
+import { confirmEmailVerification, sendEmailVerification, signup } from '../api/auth';
+import { errorMessage } from '../api/client';
+import useCooldown from '../components/auth/useCooldown';
+import toAddress from '../components/toAddress';
+
+const RESEND_SECONDS = 5;
 
 // 백엔드 비밀번호 규칙과 같음 (PasswordResetPage와 같은 기준)
 const PASSWORD_RULES = [
@@ -7,6 +14,9 @@ const PASSWORD_RULES = [
   { label: '영문·숫자·특수문자 섞기', test: (password) => /[A-Za-z]/.test(password) && /\d/.test(password) && /[^A-Za-z\d]/.test(password) },
 ];
 const PLACES = ['집', '회사'];
+// 백엔드 검증과 같음: 영문·숫자·특수문자만 쓰는 공백 없는 문자열
+const PASSWORD_CHARS = /^[\x21-\x7E]+$/;
+
 
 const FOCUS_CLASS = 'focus:border-zelo-orange focus:ring-3 focus:ring-zelo-orange/25 focus:outline-none';
 const INPUT_CLASS = `h-[54px] min-w-0 rounded-2xl border-2 border-zelo-line bg-zelo-ivory/40 px-[18px] text-base text-zelo-ink ${FOCUS_CLASS}`;
@@ -17,25 +27,129 @@ const STEP_NUMBER_CLASS = 'inline-grid size-8 place-items-center rounded-full bg
 const FIELD_CLASS = 'flex min-w-0 flex-col gap-2';
 const LABEL_CLASS = 'text-sm font-medium';
 
-// 화면만 먼저 만들어 둠. 인증 메일, 주소 찾기, 가입 요청은 회원 담당이 api/auth.js의 함수로 붙임
 export default function SignupPage() {
+  const navigate = useNavigate();
+  const openPostcode = useKakaoPostcodePopup();
+  const detailRef = useRef(null);
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
+  // 인증이 끝나면 받는 티켓. 이 티켓이 있어야 가입할 수 있음
+  const [ticket, setTicket] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [resendWait, startResendWait] = useCooldown(RESEND_SECONDS);
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [place, setPlace] = useState('집');
-  const [zipCode] = useState('');
-  const [addresses, setAddresses] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [baseAddress, setBaseAddress] = useState('');
+  const [detailAddress, setDetailAddress] = useState('');
 
   const rules = [
     ...PASSWORD_RULES.map((rule) => ({ label: rule.label, ok: rule.test(password) })),
     { label: '두 칸이 같아요', ok: password !== '' && password === passwordConfirm },
   ];
 
+  async function run(action, failMessage) {
+    setError('');
+    setNotice('');
+    setBusy(true);
+    try {
+      await action();
+    } catch (e) {
+      setError(errorMessage(e, failMessage));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // 이메일을 고치면 지난 인증은 무효라서 처음부터 다시 받게 함
+  function changeEmail(value) {
+    setEmail(value);
+    setTicket('');
+    setCode('');
+    setCodeSent(false);
+    setNotice('');
+  }
+
+  function handleSendCode() {
+    if (!email) {
+      setError('이메일을 입력해 주세요');
+      return;
+    }
+    return run(async () => {
+      await sendEmailVerification(email, 'SIGNUP');
+      setCodeSent(true);
+      startResendWait();
+      setNotice('메일로 6자리 인증 코드를 보냈어요');
+    }, '인증 메일을 보내지 못했어요');
+  }
+
+  function handleConfirmCode() {
+    if (!/^\d{6}$/.test(code)) {
+      setError('인증 코드 6자리를 입력해 주세요');
+      return;
+    }
+    return run(async () => {
+      setTicket(await confirmEmailVerification(email, 'SIGNUP', code));
+      setNotice('이메일 인증이 완료됐어요');
+    }, '인증 코드를 확인해 주세요');
+  }
+
+  function searchAddress() {
+    openPostcode({
+      onComplete: (data) => {
+        setZipCode(data.zonecode);
+        setBaseAddress(toAddress(data));
+        detailRef.current?.focus();
+      },
+    });
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
+    if (!ticket) {
+      setError('이메일 인증을 먼저 완료해 주세요');
+      return;
+    }
+    if (!PASSWORD_RULES.every((rule) => rule.test(password)) || !PASSWORD_CHARS.test(password)) {
+      setError('비밀번호는 공백 없이 영문, 숫자, 특수문자를 모두 포함해 8자 이상이어야 해요');
+      return;
+    }
+    if (password !== passwordConfirm) {
+      setError('비밀번호가 서로 달라요');
+      return;
+    }
+    // 우편번호 칸은 읽기 전용이라 브라우저의 required 검사가 적용되지 않아 직접 확인함
+    if (!zipCode) {
+      setError('주소 찾기로 우편번호를 넣어 주세요');
+      return;
+    }
+    // 백엔드는 주소를 한 줄로 받음. 배송지 추가(AddressPage)와 같은 형식으로 합침
+    const detail = detailAddress.trim();
+    const address = detail ? `${baseAddress.trim()}, ${detail}` : baseAddress.trim();
+    if (address.length > 200) {
+      setError('주소가 너무 길어요. 주소와 상세 주소를 줄여 주세요');
+      return;
+    }
+    return run(async () => {
+      await signup({
+        email,
+        emailVerificationTicket: ticket,
+        password,
+        passwordConfirm,
+        name: name.trim(),
+        phoneNumber,
+        place: place.trim(),
+        addresses: address,
+        zipCode,
+      });
+      navigate('/login', { replace: true, state: { notice: '가입이 완료됐어요. 로그인해 주세요' } });
+    }, '가입하지 못했어요. 입력한 내용을 확인해 주세요');
   }
 
   return (
@@ -65,14 +179,14 @@ export default function SignupPage() {
               id="signupEmail"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => changeEmail(e.target.value)}
               placeholder="you@example.com"
               maxLength={50}
               required
               className={`${INPUT_CLASS} flex-[1_1_260px]`}
             />
-            <button type="button" className={LINE_BUTTON_CLASS}>
-              인증 코드 받기
+            <button type="button" onClick={handleSendCode} disabled={busy || !!ticket || resendWait > 0} className={LINE_BUTTON_CLASS}>
+              {resendWait > 0 ? `다시 보내기 (${resendWait})` : codeSent ? '다시 보내기' : '인증 코드 받기'}
             </button>
           </div>
           <label htmlFor="signupCode" className={LABEL_CLASS}>
@@ -85,13 +199,17 @@ export default function SignupPage() {
               onChange={(e) => setCode(e.target.value)}
               placeholder="메일로 받은 6자리"
               inputMode="numeric"
-              pattern="\d{6}"
               maxLength={6}
-              required
-              className={`${INPUT_CLASS} flex-[1_1_260px] tracking-[.1em]`}
+              disabled={!codeSent || !!ticket}
+              className={`${INPUT_CLASS} flex-[1_1_260px] tracking-[.1em] disabled:opacity-60`}
             />
-            <button type="button" className="h-[54px] shrink-0 rounded-full bg-zelo-green px-[26px] text-[15px] font-bold text-zelo-ivory disabled:opacity-50">
-              확인
+            <button
+              type="button"
+              onClick={handleConfirmCode}
+              disabled={busy || !codeSent || !!ticket}
+              className="h-[54px] shrink-0 rounded-full bg-zelo-green px-[26px] text-[15px] font-bold text-zelo-ivory disabled:opacity-50"
+            >
+              {ticket ? '인증 완료' : '확인'}
             </button>
           </div>
         </fieldset>
@@ -144,7 +262,7 @@ export default function SignupPage() {
 
         <fieldset className="flex flex-col gap-3.5">
           <legend className={LEGEND_CLASS}>
-            <span className={STEP_NUMBER_CLASS}>3</span>받는 분
+            <span className={STEP_NUMBER_CLASS}>3</span>내 정보
           </legend>
           <div className="grid gap-3.5 sm:grid-cols-2">
             <div className={FIELD_CLASS}>
@@ -155,7 +273,7 @@ export default function SignupPage() {
             </div>
             <div className={FIELD_CLASS}>
               <label htmlFor="signupPhone" className={LABEL_CLASS}>
-                휴대폰 번호
+                휴대폰 번호 <span className="font-normal text-zelo-sub">(- 없이도 돼요)</span>
               </label>
               <input
                 id="signupPhone"
@@ -205,24 +323,36 @@ export default function SignupPage() {
           </label>
           <div className="flex flex-wrap gap-2.5">
             <input id="signupZip" value={zipCode} placeholder="우편번호" readOnly required className="h-[54px] min-w-0 flex-[0_1_180px] rounded-2xl border-2 border-zelo-line bg-zelo-line/40 px-[18px] text-base focus:outline-none" />
-            <button type="button" className={LINE_BUTTON_CLASS}>
+            <button type="button" onClick={searchAddress} className={LINE_BUTTON_CLASS}>
               주소 찾기
             </button>
           </div>
           <input
-            value={addresses}
-            onChange={(e) => setAddresses(e.target.value)}
-            placeholder="도로명 주소와 상세 주소 (동·호수)"
-            aria-label="상세 주소"
+            value={baseAddress}
+            onChange={(e) => setBaseAddress(e.target.value)}
+            placeholder="주소"
+            aria-label="주소"
             minLength={2}
             maxLength={200}
             required
             className={INPUT_CLASS}
           />
+          <input
+            ref={detailRef}
+            value={detailAddress}
+            onChange={(e) => setDetailAddress(e.target.value)}
+            placeholder="상세 주소 (동, 호수)"
+            aria-label="상세 주소"
+            maxLength={100}
+            className={INPUT_CLASS}
+          />
         </fieldset>
 
-        <button type="submit" className="h-16 rounded-full bg-zelo-green font-display text-2xl text-zelo-ivory disabled:opacity-50">
-          가입하고 장보기 시작
+        {notice && <p className="text-sm font-medium text-zelo-green">{notice}</p>}
+        {error && <p className="text-sm font-medium text-zelo-orange">{error}</p>}
+
+        <button type="submit" disabled={busy} className="h-16 rounded-full bg-zelo-green font-display text-2xl text-zelo-ivory disabled:opacity-50">
+          {busy ? '처리 중…' : '가입하고 장보기 시작'}
         </button>
       </form>
 
