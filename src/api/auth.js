@@ -31,6 +31,16 @@ export async function resetPassword(request) {
   await client.post('/api/users/password-reset', request);
 }
 
+// 로그인한 회원의 이메일로 탈퇴 인증 코드를 보냄. 이메일은 토큰에서 서버가 꺼내므로 보내지 않음
+export async function sendWithdrawalCode() {
+  await client.post('/api/users/me/withdrawal');
+}
+
+// 코드가 맞으면 서버에서 탈퇴까지 처리함. 진행 중인 주문·결제가 있으면 실패 응답이 옴
+export async function verifyWithdrawalCode(code) {
+  await client.post('/api/users/me/withdrawal/code', { code });
+}
+
 // 소셜 로그인 요청 필드: code, redirectUri, codeVerifier(PKCE를 쓰는 소셜만, 선택)
 // 응답: 기존 회원이면 { signupRequired: false, accessToken }, 처음이면 { signupRequired: true, signupTicket, email, name }
 export async function socialLogin(provider, request) {

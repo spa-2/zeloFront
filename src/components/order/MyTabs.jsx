@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 // MY 화면들 위에 같이 붙이는 탭. 배송지 화면이 생기면 여기에 추가
 const TABS = [
@@ -23,6 +23,9 @@ export default function MyTabs() {
                     {tab.label}
                 </NavLink>
             ))}
+            <Link to="/withdraw" className="ml-auto self-center text-xs text-zelo-sub hover:underline">
+                회원 탈퇴
+            </Link>
         </nav>
     );
 }
