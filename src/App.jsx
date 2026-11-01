@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import OrderListPage from './pages/OrderListPage';
 import PasswordResetPage from './pages/PasswordResetPage';
+import OrderDetailPage from './pages/OrderDetailPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import ProductListPage from './pages/ProductListPage';
 import SignupPage from './pages/SignupPage';
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="chat" element={<ChatPage />} />
           <Route path="chat/:roomId" element={<ChatPage />} />
           <Route path="orders" element={<OrderListPage />} />
+          <Route path="orders/:orderId" element={<OrderDetailPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
