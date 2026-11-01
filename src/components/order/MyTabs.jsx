@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 const TABS = [
     { to: '/orders', label: '주문 내역' },
     { to: '/payment-methods', label: '결제 수단' },
+    { to: '/addresses', label: '배송지' },
 ];
 
 export default function MyTabs() {

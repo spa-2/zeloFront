@@ -8,8 +8,8 @@ const menus = [
   { to: '/chat', label: 'AI 장보기' },
 ];
 
-// MY 탭에 속한 화면. 이 화면들에 있으면 헤더의 MY에 밑줄을 그음 (배송지 화면이 생기면 추가)
-const MY_PATHS = ['/orders', '/payment-methods'];
+// MY 탭에 속한 화면. 이 화면들에 있으면 헤더의 MY에 밑줄을 그음
+const MY_PATHS = ['/orders', '/payment-methods', '/addresses'];
 
 // 메인 첫 화면 위에서는 아이보리, 첫 화면을 지나거나 다른 화면이면 초록
 function useSolidHeader(isHome) {
