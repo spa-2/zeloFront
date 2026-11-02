@@ -17,6 +17,7 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [reload, setReload] = useState(0);
+  const [paymentQuoteId, setPaymentQuoteId] = useState(null);
   const [cursor, setCursor] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [roomsError, setRoomsError] = useState('');
@@ -99,6 +100,7 @@ export default function ChatPage() {
       pending.current = null;
       setOutgoing(null);
       setChangeNotice('');
+      setPaymentQuoteId(null);
       setText(drafts.current[roomId] || '');
       setMessages([]);
       setCursor(null);
@@ -133,6 +135,7 @@ export default function ChatPage() {
     pending.current = null;
     setOutgoing(null);
     setChangeNotice('');
+    setPaymentQuoteId(null);
     setMessages([]);
     setText('');
     setError('');
@@ -236,7 +239,7 @@ export default function ChatPage() {
               <div className="chat-message-body">
                 {messageText(message) && <p className="chat-bubble">{messageText(message)}</p>}
                 {message.retryable && message.messageId === latestMessageId && <button className="chat-retry" disabled={sending || loading} onClick={() => changeQuote(() => retryMessage(roomId, message.messageId), '답변 재시도 결과를 확인해 주세요.')}>답변 다시 시도</button>}
-                {message.payload?.type === 'QUOTE_CARD' && <QuoteCard message={message} disabled={sending || loading} onUpdateItem={(quoteId, productId, quantity) => changeQuote(() => updateQuoteItem(roomId, { quoteId, productId, quantity }), '상품 수량·삭제 요청 결과를 확인해 주세요.')} onSubstitute={(quoteId, ingredientName, accept) => changeQuote(() => chooseSubstitute(roomId, { quoteId, ingredientName, accept }))} onBudgetOption={(quoteId, productId) => changeQuote(() => chooseBudgetOption(roomId, { quoteId, productId }))} />}
+                {message.payload?.type === 'QUOTE_CARD' && <QuoteCard message={message} roomId={roomId} disabled={sending || loading || (paymentQuoteId != null && paymentQuoteId !== message.payload.quoteId)} paymentOpen={paymentQuoteId === message.payload.quoteId} onOpenPayment={() => setPaymentQuoteId(message.payload.quoteId)} onDone={() => { setPaymentQuoteId(null); setReload((count) => count + 1); }} onUpdateItem={(quoteId, productId, quantity) => changeQuote(() => updateQuoteItem(roomId, { quoteId, productId, quantity }), '상품 수량·삭제 요청 결과를 확인해 주세요.')} onSubstitute={(quoteId, ingredientName, accept) => changeQuote(() => chooseSubstitute(roomId, { quoteId, ingredientName, accept }))} onBudgetOption={(quoteId, productId) => changeQuote(() => chooseBudgetOption(roomId, { quoteId, productId }))} />}
                 {message.payload?.type === 'PAYMENT_CARD' && <PaymentResultCard message={message} onRetryDone={() => setReload((count) => count + 1)} />}
               </div>
             </article>
@@ -248,8 +251,8 @@ export default function ChatPage() {
         {!loading && !sending && !messages.length && !error && <div className="chat-welcome"><span className="chat-avatar" aria-label="ZELO"><span aria-hidden="true">Z</span></span><h1>오늘은 무엇을 먹을까요?</h1><p>메뉴와 인원, 예산을 알려 주세요.<br />필요한 재료를 ZELO가 골라 담을게요.</p></div>}
         {sending && <p role="status" className="chat-status">{roomId ? operation || '답변을 준비하고 있어요…' : '채팅방을 만들고 답변을 준비하고 있어요…'}</p>}
         <form onSubmit={submit} className="chat-composer">
-          <input aria-label="메시지" value={text} onChange={(event) => { setText(event.target.value); drafts.current[roomId || 'new'] = event.target.value; }} maxLength={1000} disabled={sending || loading} placeholder="먹고 싶은 메뉴를 말해 주세요" />
-          <button type="submit" aria-label="메시지 보내기" disabled={sending || loading || !text.trim()}>↑</button>
+          <input aria-label="메시지" value={text} onChange={(event) => { setText(event.target.value); drafts.current[roomId || 'new'] = event.target.value; }} maxLength={1000} disabled={sending || loading || paymentQuoteId != null} placeholder="먹고 싶은 메뉴를 말해 주세요" />
+          <button type="submit" aria-label="메시지 보내기" disabled={sending || loading || paymentQuoteId != null || !text.trim()}>↑</button>
         </form>
         <div ref={conversationEnd} aria-hidden="true" />
       </section>

@@ -142,14 +142,14 @@ export default function PaymentStep({ roomId, quote, placedOrder, onDone }) {
 
     if (expired) {
         return (
-            <section className="flex max-w-md flex-col gap-2 rounded-3xl border-2 border-zelo-line bg-zelo-card p-5">
+            <section className="flex w-full flex-col gap-2 rounded-3xl border-2 border-zelo-line bg-zelo-card p-5">
                 <p className="font-medium text-zelo-orange">시간이 초과됐어요. 새 견적을 받아 주세요.</p>
             </section>
         );
     }
 
     return (
-        <section className="flex max-w-md flex-col gap-3 rounded-3xl border-2 border-zelo-green bg-zelo-card p-5">
+        <section className="flex w-full flex-col gap-3 rounded-3xl border-2 border-zelo-green bg-zelo-card p-5">
             <div className="flex items-baseline justify-between gap-3">
                 <h3 className="font-display text-xl text-zelo-green">결제 · {formatMoney(totalAmount)}</h3>
                 <span className="font-label text-xs text-zelo-sub">{formatRemaining(deadline - now)}</span>
