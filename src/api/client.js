@@ -35,6 +35,18 @@ function reissue() {
   return reissuing;
 }
 
+// 앱을 켤 때 한 번 부름. 토큰이 없으면(새 탭, 창을 닫았다 다시 연 경우) 리프레시 쿠키로 재발급을 시도해 로그인을 이어 줌
+// 쿠키가 없거나 만료면 재발급이 실패하는데, 그건 그냥 로그인 안 한 상태라서 조용히 넘어감
+let restoring = null;
+
+export function restoreSession() {
+  if (!restoring) {
+    const start = useAuthStore.getState().accessToken ? Promise.resolve() : reissue().catch(() => {});
+    restoring = start.finally(() => useAuthStore.getState().setRestored());
+  }
+  return restoring;
+}
+
 client.interceptors.response.use(
   (res) => res,
   async (error) => {
