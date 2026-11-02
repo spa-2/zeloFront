@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useKakaoPostcodePopup } from 'react-daum-postcode';
 import { createAddress, deleteAddress, getAddresses, updateAddress } from '../api/addresses';
 import { errorMessage } from '../api/client';
+import { joinAddress, useAddressSearch } from '../components/addressSearch';
 import MyTabs from '../components/order/MyTabs';
-import toAddress from '../components/toAddress';
 
 const EMPTY_FORM = {
     place: '',
@@ -21,7 +20,9 @@ const INPUT_CLASS = 'rounded-full border-2 border-zelo-line bg-zelo-ivory px-4 p
 const SMALL_BUTTON_CLASS = 'rounded-full border-2 border-zelo-green px-3 py-1 text-sm font-medium text-zelo-green disabled:opacity-50';
 
 export default function AddressPage() {
-    const openPostcode = useKakaoPostcodePopup();
+    const searchAddress = useAddressSearch(({ zipCode, address }) =>
+        setForm((prev) => ({ ...prev, zipCode, baseAddress: address })),
+    );
     const [addresses, setAddresses] = useState(null);
     const [error, setError] = useState('');
     // null이면 폼을 닫은 상태, 'new'면 추가, 숫자면 그 배송지 수정
@@ -76,12 +77,6 @@ export default function AddressPage() {
         setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
     }
 
-    function searchAddress() {
-        openPostcode({
-            onComplete: (data) => setForm((prev) => ({ ...prev, zipCode: data.zonecode, baseAddress: toAddress(data) })),
-        });
-    }
-
     async function handleSave(event) {
         event.preventDefault();
         const place = form.place.trim();
@@ -94,13 +89,12 @@ export default function AddressPage() {
             setError('같은 이름의 배송지가 있어요. 회사2처럼 다른 이름을 써 주세요.');
             return;
         }
-        const detail = form.detailAddress.trim();
         const request = {
             place,
             recipientName: form.recipientName.trim(),
             recipientPhone: form.recipientPhone,
             zipCode: form.zipCode,
-            address: detail ? `${form.baseAddress}, ${detail}` : form.baseAddress,
+            address: joinAddress(form.baseAddress, form.detailAddress),
             isDefault: form.isDefault,
         };
         setError('');

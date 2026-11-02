@@ -1,10 +1,9 @@
 import { useRef, useState } from 'react';
-import { useKakaoPostcodePopup } from 'react-daum-postcode';
 import { Link, useNavigate } from 'react-router-dom';
 import { confirmEmailVerification, sendEmailVerification, signup } from '../api/auth';
 import { errorMessage } from '../api/client';
+import { joinAddress, MAX_ADDRESS_LENGTH, useAddressSearch } from '../components/addressSearch';
 import useCooldown from '../components/auth/useCooldown';
-import toAddress from '../components/toAddress';
 
 const RESEND_SECONDS = 5;
 
@@ -29,8 +28,12 @@ const LABEL_CLASS = 'text-sm font-medium';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const openPostcode = useKakaoPostcodePopup();
   const detailRef = useRef(null);
+  const searchAddress = useAddressSearch(({ zipCode, address }) => {
+    setZipCode(zipCode);
+    setBaseAddress(address);
+    detailRef.current?.focus();
+  });
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   // 인증이 끝나면 받는 티켓. 이 티켓이 있어야 가입할 수 있음
@@ -100,16 +103,6 @@ export default function SignupPage() {
     }, '인증 코드를 확인해 주세요');
   }
 
-  function searchAddress() {
-    openPostcode({
-      onComplete: (data) => {
-        setZipCode(data.zonecode);
-        setBaseAddress(toAddress(data));
-        detailRef.current?.focus();
-      },
-    });
-  }
-
   function handleSubmit(event) {
     event.preventDefault();
     if (!ticket) {
@@ -129,10 +122,8 @@ export default function SignupPage() {
       setError('주소 찾기로 우편번호를 넣어 주세요');
       return;
     }
-    // 백엔드는 주소를 한 줄로 받음. 배송지 추가(AddressPage)와 같은 형식으로 합침
-    const detail = detailAddress.trim();
-    const address = detail ? `${baseAddress.trim()}, ${detail}` : baseAddress.trim();
-    if (address.length > 200) {
+    const address = joinAddress(baseAddress, detailAddress);
+    if (address.length > MAX_ADDRESS_LENGTH) {
       setError('주소가 너무 길어요. 주소와 상세 주소를 줄여 주세요');
       return;
     }
