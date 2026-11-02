@@ -12,7 +12,7 @@ const LAYOUT = [
   { make: carrot, x: 29, y: 75, size: 145, depth: 2.6 },
   { make: cabbage, x: 62, y: 78, size: 160, depth: 1.8 },
 ];
-const CART = { x: 46, y: 54, size: 300 };
+const CART = { x: 46, y: 54, size: 400 };
 
 // 로딩 화면 3D: area 위에 재료 6개와 카트를 띄움. collect()로 재료가 차례로 카트에 담기고, 다 차면 카트가 출동함
 // 출동 중에는 onFlash({x, y}, 처음인지)를 매 프레임 불러서 빛이 카트를 따라가게 함

@@ -27,8 +27,13 @@ const BUBBLES = SAYINGS.map((text, i) => {
 });
 const BEST_COUNT = 8;
 
+// 로딩 화면은 사이트에 처음 들어왔을 때 한 번만 보여 줌. 다른 화면에 갔다가 홈으로 돌아오면 안 뜨고, 새로고침하면 새로 들어온 걸로 봄
+let introShown = false;
+
 export default function HomePage() {
-  const [introOpen, setIntroOpen] = useState(true);
+  // 이미 본 뒤에 홈으로 돌아오면 3D를 아예 안 불러옴
+  const [showIntro] = useState(() => !introShown);
+  const [introOpen, setIntroOpen] = useState(showIntro);
   const [message, setMessage] = useState('');
   const [categories, setCategories] = useState([]);
   const [best, setBest] = useState([]);
@@ -50,30 +55,10 @@ export default function HomePage() {
       .catch(() => setBest([]));
   }, []);
 
-  // 맨 위에서 위로 스크롤하면 로딩 화면을 처음 상태로 다시 보여 줌
-  useEffect(() => {
-    if (introOpen) {
-      return undefined;
-    }
-    const reopen = () => scrollY <= 0 && setIntroOpen(true);
-    const onWheel = (e) => e.deltaY < 0 && reopen();
-    let pullY = null;
-    const onTouchStart = (e) => {
-      pullY = e.touches[0].clientY;
-    };
-    const onTouchMove = (e) => pullY !== null && e.touches[0].clientY - pullY > 40 && reopen();
-    const onKey = (e) => ['ArrowUp', 'PageUp', 'Home'].includes(e.key) && reopen();
-    addEventListener('wheel', onWheel, { passive: true });
-    addEventListener('touchstart', onTouchStart, { passive: true });
-    addEventListener('touchmove', onTouchMove, { passive: true });
-    addEventListener('keydown', onKey);
-    return () => {
-      removeEventListener('wheel', onWheel);
-      removeEventListener('touchstart', onTouchStart);
-      removeEventListener('touchmove', onTouchMove);
-      removeEventListener('keydown', onKey);
-    };
-  }, [introOpen]);
+  function closeIntro() {
+    introShown = true;
+    setIntroOpen(false);
+  }
 
   // 첫 메시지를 들고 채팅 화면으로. 채팅 화면이 location.state.initialMessage로 받아서 보냄
   function startChat(event) {
@@ -94,7 +79,7 @@ export default function HomePage() {
 
   return (
     <div className="home">
-      <IntroOverlay open={introOpen} onClose={() => setIntroOpen(false)} />
+      {showIntro && <IntroOverlay open={introOpen} onClose={closeIntro} />}
 
       <section className="stage" aria-label="이렇게 말해 보세요">
         <div className="marquee" aria-hidden="true">
