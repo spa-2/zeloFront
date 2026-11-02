@@ -52,7 +52,7 @@
   padding: 12px 12px 12px 36px; transition: box-shadow .2s ease;
 }
 .chat-box:focus-within { box-shadow: 0 0 0 3px var(--vermilion); }
-.chat-box input { flex: 1; min-width: 0; border: none; background: none; outline: none; padding: 30px 0; font: inherit; font-size: clamp(19px, 2vw, 26px); color: var(--ink); }
+.chat-box input { flex: 1; min-width: 0; border: none; background: none; outline: none; padding: 30px 0; font: inherit; font-size: 18px; color: var(--ink); }
 .chat-box input::placeholder { color: var(--sub); }
 .chat-box button {
   width: 80px; height: 80px; flex: none; border-radius: 50%; border: none; background: var(--emerald); color: var(--ivory);
