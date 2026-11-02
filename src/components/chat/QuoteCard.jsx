@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ProductReason from './ProductReason';
+import PaymentStep from '../order/PaymentStep';
 
 const money = (value) => `${Number(value ?? 0).toLocaleString('ko-KR')}원`;
 
@@ -11,7 +12,7 @@ function productLabel(item) {
   return `${name} ${unit}`;
 }
 
-export default function QuoteCard({ message, disabled, onSubstitute, onBudgetOption, onUpdateItem }) {
+export default function QuoteCard({ message, roomId, disabled, paymentOpen, onOpenPayment, onDone, onSubstitute, onBudgetOption, onUpdateItem }) {
   const quote = message.payload;
   const previous = message.quoteCardStatus !== 'ACTIVE';
   const [expanded, setExpanded] = useState(false);
@@ -52,9 +53,9 @@ export default function QuoteCard({ message, disabled, onSubstitute, onBudgetOpt
         {(quote.excludedItems || []).map((item) => <p className="chat-excluded" key={item.name}>ⓘ {item.name}은 이번 견적에서 제외됐어요.</p>)}
         {quote.overBudget && <div className="chat-budget"><h3>예산보다 {money(quote.totalAmount - quote.budget)} 많아요</h3>{!quote.budgetOptions?.length && <p className="chat-budget-empty">현재 조건과 재고에 맞는 더 저렴한 상품이 없어요. 상품 수량을 줄이거나 일부 상품을 빼서 예산을 맞춰 주세요.</p>}{(quote.budgetOptions || []).map((option) => <div key={option.productId}><p>{quote.items.find((item) => item.productId === option.productId)?.productName} → <b>{option.item.productName} {money(option.item.lineAmount)}</b> <span className="chat-saving">-{money(Math.max(0, (quote.items.find((item) => item.productId === option.productId)?.lineAmount || 0) - option.item.lineAmount))}</span></p><button disabled={inactive} onClick={() => onBudgetOption(quote.quoteId, option.productId)}>이걸로 바꾸기</button></div>)}</div>}
       </div>
-      <footer className="chat-quote-total"><div><small>합계 · {quote.items.length}개 상품</small><strong>{money(quote.totalAmount)}</strong></div><button type="button" className="chat-order" disabled title="주문 기능 연결 준비 중">OK. 이대로 주문</button></footer>
+      <footer className="chat-quote-total"><div><small>합계 · {quote.items.length}개 상품</small><strong>{money(quote.totalAmount)}</strong></div><button type="button" className="chat-order" disabled={inactive || paymentOpen} onClick={onOpenPayment}>OK. 이대로 주문</button></footer>
     </section>}
-    {!previous && <p className="chat-order-note">주문 기능은 준비 중이에요.</p>}
+    {paymentOpen && <div className="mt-4"><PaymentStep roomId={roomId} quote={quote} onDone={onDone} /></div>}
     </div>
   );
 }
