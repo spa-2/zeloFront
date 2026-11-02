@@ -121,7 +121,7 @@ export default function HomePage() {
               ref={chatInputRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="먹고 싶은 메뉴를 입력해 주세요"
+              placeholder="초등학생 2명과 먹을 4인분 김치볶음밥 재료를 3만원 안으로 준비해줘"
               autoComplete="off"
               maxLength={1000}
             />
