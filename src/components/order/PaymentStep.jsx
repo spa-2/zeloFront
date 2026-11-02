@@ -96,7 +96,9 @@ export default function PaymentStep({ roomId, quote, placedOrder, onDone }) {
         const result = await confirmPayment(target.portoneId);
         // 창을 그냥 닫으면 서버가 확인 대기를 줄 수 있어서, 창에서 오류가 왔으면 완료로 보지 않음
         if (response?.code && result.status !== 'PAID') {
-            return { ...result, status: 'NOT_COMPLETED', message: response.message ?? '결제가 완료되지 않았어요.' };
+            // 포트원 창의 오류 문구는 영어 코드가 섞여 있어 사용자에게 보여 주지 않음
+            const message = result.status === 'FAILED' ? result.message : '결제를 취소했어요.';
+            return { ...result, status: 'NOT_COMPLETED', message };
         }
         return result;
     }
@@ -195,7 +197,7 @@ export default function PaymentStep({ roomId, quote, placedOrder, onDone }) {
                 </button>
             ))}
             <button type="button" disabled={busy} onClick={() => pay(null)} className={`${BUTTON_BASE} text-zelo-green`}>
-                다른 카드로 결제
+                일반결제
             </button>
             <button
                 type="button"
