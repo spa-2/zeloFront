@@ -39,7 +39,8 @@ export async function issueBillingKey() {
         customer: { customerId: currentUserId() },
     });
     if (!response || response.code) {
-        throw new Error(response?.message || '카드 등록이 취소됐어요');
+        // 포트원 창의 오류 문구는 영어 코드가 섞여 있어 사용자에게는 한글 안내만 보여 줌
+        throw new Error('카드 등록이 완료되지 않았어요.');
     }
     return response.billingKey;
 }
