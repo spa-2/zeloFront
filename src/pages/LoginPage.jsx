@@ -36,7 +36,8 @@ export default function LoginPage() {
       setAccessToken(await loginDevChat());
       navigate(location.state?.from || '/chat', { replace: true, state: location.state?.fromState });
     } catch (e) {
-      setError(errorMessage(e, '개발 로그인에 실패했어요. 백엔드 SOCIAL_MODE=fake 설정을 확인해 주세요.'));
+      // 백엔드가 SOCIAL_MODE=real이면 가짜 code를 구글에 보내 실패하는데, 백엔드 문구만으로는 원인을 알기 어려워 힌트를 붙임
+      setError(`${errorMessage(e, '개발 로그인에 실패했어요.')} 백엔드가 SOCIAL_MODE=fake로 실행 중인지 확인해 주세요.`);
     } finally {
       setSubmitting(false);
     }
