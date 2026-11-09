@@ -40,6 +40,24 @@ jobs:
 
       - run: npm ci
 
+      # 변수를 등록하지 않으면 빈 값으로 빌드돼 배포는 성공하고 화면에서만 결제·소셜 로그인이 안 된다. 빌드 전에 멈춘다
+      - name: 필수 변수 확인
+        env:
+          VITE_PORTONE_STORE_ID: ${{ vars.VITE_PORTONE_STORE_ID }}
+          VITE_PORTONE_BILLING_CHANNEL_KEY: ${{ vars.VITE_PORTONE_BILLING_CHANNEL_KEY }}
+          VITE_PORTONE_PAYMENT_CHANNEL_KEY: ${{ vars.VITE_PORTONE_PAYMENT_CHANNEL_KEY }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_KAKAO_CLIENT_ID: ${{ vars.VITE_KAKAO_CLIENT_ID }}
+        run: |
+          missing=0
+          for name in VITE_PORTONE_STORE_ID VITE_PORTONE_BILLING_CHANNEL_KEY VITE_PORTONE_PAYMENT_CHANNEL_KEY VITE_GOOGLE_CLIENT_ID VITE_KAKAO_CLIENT_ID; do
+            if [ -z "${!name}" ]; then
+              echo "::error::저장소 변수 $name 이(가) 비어 있습니다"
+              missing=1
+            fi
+          done
+          exit $missing
+
       # Vite는 VITE_ 변수를 빌드할 때 코드 안에 넣어 버린다. 그래서 배포된 화면의 값을 바꾸려면 다시 빌드해야 한다
       - run: npm run build
         env:
