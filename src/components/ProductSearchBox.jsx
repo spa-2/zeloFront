@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { autocomplete, getPopularKeywords } from '../api/products';
+import { getPopularKeywords } from '../api/products';
+import useAutocomplete from './product/useAutocomplete';
 
 // 입력하면 자동완성 목록, 아래엔 인기 검색어
 export default function ProductSearchBox({ initialKeyword, onSearch }) {
   const [text, setText] = useState(initialKeyword);
   const [open, setOpen] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
+  const suggestions = useAutocomplete(text, open);
   const [popular, setPopular] = useState([]);
 
   useEffect(() => {
@@ -13,24 +14,6 @@ export default function ProductSearchBox({ initialKeyword, onSearch }) {
       .then(setPopular)
       .catch(() => setPopular([]));
   }, []);
-
-  // 글자 칠 때마다 부르지 않게 0.2초 멈추면 요청
-  useEffect(() => {
-    const value = text.trim();
-    if (!open || !value) {
-      return undefined;
-    }
-    let ignore = false;
-    const timer = setTimeout(() => {
-      autocomplete(value)
-        .then((names) => !ignore && setSuggestions(names))
-        .catch(() => !ignore && setSuggestions([]));
-    }, 200);
-    return () => {
-      ignore = true;
-      clearTimeout(timer);
-    };
-  }, [text, open]);
 
   function search(value) {
     setText(value);

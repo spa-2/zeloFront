@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../api/auth';
+import HeaderSearch from './product/HeaderSearch';
 import { useAuthStore } from '../store/authStore';
 
 const menus = [
@@ -34,7 +35,8 @@ export default function Layout() {
   const isHome = pathname === '/';
   const solid = useSolidHeader(isHome);
   const isMyPage = MY_PATHS.some((path) => pathname.startsWith(path));
-  const [keyword, setKeyword] = useState('');
+  // 상품 목록 화면에는 큰 검색창이 따로 있어서 검색창이 두 개로 보이지 않게 헤더 검색창을 숨김
+  const showHeaderSearch = pathname !== '/products';
 
   async function handleLogout() {
     try {
@@ -44,12 +46,6 @@ export default function Layout() {
       clear();
       navigate('/login');
     }
-  }
-
-  function search(event) {
-    event.preventDefault();
-    const value = keyword.trim();
-    navigate(value ? `/products?keyword=${encodeURIComponent(value)}` : '/products');
   }
 
   return (
@@ -76,15 +72,8 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-          <form onSubmit={search} className="min-w-0 flex-1">
-            <input
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              placeholder="상품명이나 브랜드로 찾기"
-              aria-label="상품 검색"
-              className="w-full rounded-full border-2 border-current bg-transparent px-3.5 py-2 text-sm outline-none placeholder:text-current placeholder:opacity-60"
-            />
-          </form>
+          {/* 검색창이 없을 때도 MY·로그인이 오른쪽 끝에 붙게 빈 칸을 둠 */}
+          {showHeaderSearch ? <HeaderSearch /> : <div className="flex-1" />}
           <NavLink
             to="/orders"
             className={`border-b-2 pb-0.5 font-logo text-[13px] tracking-[.08em] ${
