@@ -1,5 +1,5 @@
-# dev 브랜치에 머지(push)되면 화면을 빌드해서 S3에 올리고 CloudFront 캐시를 무효화한다.
-# AWS 키를 저장하지 않고 OIDC로 임시 자격 증명을 받는다. 역할은 이 저장소의 dev 브랜치 실행만 받을 수 있다(백엔드 저장소의 terraform/frontend.tf).
+# main 브랜치에 머지(push)되면 화면을 빌드해서 S3에 올리고 CloudFront 캐시를 무효화한다.
+# AWS 키를 저장하지 않고 OIDC로 임시 자격 증명을 받는다. 역할은 이 저장소의 main 브랜치 실행만 받을 수 있다(백엔드 저장소의 terraform/envs/prod.tfvars의 frontend_deploy_branch).
 #
 # 저장소 변수(Settings → Secrets and variables → Actions → Variables)에 아래 값을 넣어야 한다.
 #   AWS_ROLE_ARN                  terraform output -raw frontend_deploy_role_arn
@@ -13,7 +13,7 @@ name: deploy
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
   workflow_dispatch:
 
 # OIDC로 AWS 역할을 받으려면 id-token 쓰기 권한이 필요하다
