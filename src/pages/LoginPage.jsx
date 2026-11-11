@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { login } from '../api/auth';
+import { isDevChatLoginEnabled, login, loginDevChat } from '../api/auth';
 import { errorMessage } from '../api/client';
+import SocialLoginButtons from '../components/auth/SocialLoginButtons';
 import { useAuthStore } from '../store/authStore';
 
 export default function LoginPage() {
@@ -19,9 +20,24 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       setAccessToken(await login(email, password));
-      navigate(location.state?.from || '/chat', { replace: true });
+      navigate(location.state?.from || '/chat', { replace: true, state: location.state?.fromState });
     } catch (e) {
       setError(errorMessage(e, '이메일이나 비밀번호를 확인해 주세요'));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDevLogin() {
+    if (submitting) return;
+    setError('');
+    setSubmitting(true);
+    try {
+      setAccessToken(await loginDevChat());
+      navigate(location.state?.from || '/chat', { replace: true, state: location.state?.fromState });
+    } catch (e) {
+      // 백엔드가 SOCIAL_MODE=real이면 가짜 code를 구글에 보내 실패하는데, 백엔드 문구만으로는 원인을 알기 어려워 힌트를 붙임
+      setError(`${errorMessage(e, '개발 로그인에 실패했어요.')} 백엔드가 SOCIAL_MODE=fake로 실행 중인지 확인해 주세요.`);
     } finally {
       setSubmitting(false);
     }
@@ -30,6 +46,7 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-sm">
       <h1 className="mb-6 text-xl font-bold">로그인</h1>
+      {location.state?.notice && <p className="mb-4 text-sm text-zelo-green">{location.state.notice}</p>}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           type="email"
@@ -56,8 +73,24 @@ export default function LoginPage() {
           {submitting ? '로그인 중…' : '로그인'}
         </button>
       </form>
+      <div className="my-5 flex items-center gap-3 text-xs text-zelo-sub">
+        <span className="h-px flex-1 bg-zelo-line" />
+        또는
+        <span className="h-px flex-1 bg-zelo-line" />
+      </div>
+      <SocialLoginButtons />
+      {isDevChatLoginEnabled() && (
+        <div className="mt-6 rounded-xl border border-zelo-line p-4">
+          <button type="button" onClick={handleDevLogin} disabled={submitting} className="h-11 rounded-full border-2 border-zelo-green px-5 font-medium text-zelo-green disabled:opacity-50">
+            {submitting ? '연결 중…' : '개발용 채팅 시작'}
+          </button>
+          <p className="mt-2 text-sm text-zelo-sub">테스트 계정으로 접속합니다. 최초 접속 시 테스트 계정과 배송용이 아닌 임시 주소가 생성됩니다. 백엔드 SOCIAL_MODE=fake가 필요합니다.</p>
+        </div>
+      )}
       <p className="mt-4 text-sm text-stone-600">
         처음이신가요? <Link to="/signup" className="text-emerald-700">회원가입</Link>
+        {' · '}
+        <Link to="/password/reset" className="text-emerald-700">비밀번호 찾기</Link>
       </p>
     </div>
   );

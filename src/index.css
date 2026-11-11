@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* Zelo 디자인 기준 (시안과 같음). 클래스는 bg-zelo-green, text-zelo-orange, font-display 처럼 씀 */
+@theme {
+  --color-zelo-ivory: #f9ebd7;
+  --color-zelo-card: #fdf4e6;
+  --color-zelo-green: #046a38;
+  --color-zelo-green-deep: #02391e;
+  --color-zelo-orange: #e34222;
+  --color-zelo-ink: #1f1b16;
+  --color-zelo-sub: #7a6f62;
+  --color-zelo-line: #e6d3b6;
+
+  --font-sans: "Noto Sans KR", system-ui, sans-serif;
+  --font-display: "Black Han Sans", sans-serif;
+  --font-logo: "Anton", sans-serif;
+  --font-label: "Space Mono", monospace;
+}
+
 body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+  @apply bg-zelo-ivory font-sans text-zelo-ink antialiased;
 }

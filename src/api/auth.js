@@ -14,3 +14,63 @@ export async function signup(request) {
   const res = await client.post('/api/users', request);
   return res.data.data;
 }
+
+// purpose: SIGNUP | PASSWORD_RESET. 메일로 6자리 코드가 감
+export async function sendEmailVerification(email, purpose) {
+  await client.post('/api/auth/email-verifications', { email, purpose });
+}
+
+// 코드가 맞으면 다음 단계(가입, 비밀번호 초기화)에서 쓸 emailVerificationTicket을 돌려줌
+export async function confirmEmailVerification(email, purpose, code) {
+  const res = await client.post('/api/auth/email-verifications/confirm', { email, purpose, code });
+  return res.data.data.emailVerificationTicket;
+}
+
+// 요청 필드: email, emailVerificationTicket, password, passwordConfirm
+export async function resetPassword(request) {
+  await client.post('/api/users/password-reset', request);
+}
+
+// 로그인한 회원의 이메일로 탈퇴 인증 코드를 보냄. 이메일은 토큰에서 서버가 꺼내므로 보내지 않음
+export async function sendWithdrawalCode() {
+  await client.post('/api/users/me/withdrawal');
+}
+
+// 코드가 맞으면 서버에서 탈퇴까지 처리함. 진행 중인 주문·결제가 있으면 실패 응답이 옴
+export async function verifyWithdrawalCode(code) {
+  await client.post('/api/users/me/withdrawal/code', { code });
+}
+
+// 소셜 로그인 요청 필드: code, redirectUri, codeVerifier(PKCE를 쓰는 소셜만, 선택)
+// 응답: 기존 회원이면 { signupRequired: false, accessToken }, 처음이면 { signupRequired: true, signupTicket, email, name }
+export async function socialLogin(provider, request) {
+  const res = await client.post(`/api/auth/social/${provider}/login`, request);
+  return res.data.data;
+}
+
+// 요청 필드: signupTicket, phoneNumber, place, addresses, zipCode
+export async function socialSignup(request) {
+  const res = await client.post('/api/auth/social/signup', request);
+  return res.data.data.accessToken;
+}
+
+export function isDevChatLoginEnabled() {
+  return import.meta.env.DEV && ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+}
+
+export async function loginDevChat() {
+  if (!isDevChatLoginEnabled()) throw new Error('개발 환경에서만 사용할 수 있습니다.');
+  const data = await socialLogin('google', {
+    code: 'fake-zelo-front-chat',
+    redirectUri: `${window.location.origin}/login`,
+  });
+  if (!data.signupRequired) return data.accessToken;
+
+  return socialSignup({
+    signupTicket: data.signupTicket,
+    phoneNumber: '010-0000-0000',
+    place: '개발 테스트',
+    addresses: '테스트용 주소 (배송 불가)',
+    zipCode: '00000',
+  });
+}
