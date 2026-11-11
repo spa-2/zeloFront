@@ -38,7 +38,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # 의존성의 설치 스크립트(postinstall 등)를 돌리지 않는다. 이 job은 AWS 역할을 받으므로 패키지가 설치 중에 코드를 실행하지 못하게 막는다
+      - run: npm ci --ignore-scripts
 
       # 변수를 등록하지 않으면 빈 값으로 빌드돼 배포는 성공하고 화면에서만 결제·소셜 로그인이 안 된다. 빌드 전에 멈춘다
       - name: 필수 변수 확인
