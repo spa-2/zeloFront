@@ -6,11 +6,13 @@ export const SOCIAL_PROVIDERS = {
     clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
     authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     scope: 'openid email profile',
+    prompt: 'select_account',
   },
   kakao: {
     label: '카카오',
     clientId: import.meta.env.VITE_KAKAO_CLIENT_ID,
     authorizeUrl: 'https://kauth.kakao.com/oauth/authorize',
+    prompt: 'select_account',
   },
 };
 
@@ -20,12 +22,14 @@ export function getRedirectUri(provider) {
 }
 
 export function buildAuthorizeUrl(provider) {
-  const { clientId, authorizeUrl, scope } = SOCIAL_PROVIDERS[provider];
+  const { clientId, authorizeUrl, scope, prompt } = SOCIAL_PROVIDERS[provider];
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: getRedirectUri(provider),
     response_type: 'code',
   });
   if (scope) params.set('scope', scope);
+  // 브라우저에 남은 소셜 로그인 세션으로 바로 로그인되지 않고, 다른 계정도 고를 수 있게 함
+  if (prompt) params.set('prompt', prompt);
   return `${authorizeUrl}?${params}`;
 }
