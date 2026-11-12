@@ -16,11 +16,12 @@ export async function deletePaymentMethod(paymentMethodId) {
     await client.delete(`/api/payment-methods/${paymentMethodId}`);
 }
 
-// 서버가 빌링키를 발급받은 고객과 로그인 사용자를 비교하므로 토큰의 사용자 ID를 customerId로 넣음
-function currentUserId() {
+// 서버가 빌링키를 발급받은 고객과 로그인 사용자를 비교하므로 토큰의 사용자 ID로 customerId를 만듦
+// 토스페이먼츠는 고객 ID를 2자 이상만 받아서, 회원 ID가 한 자리여도 통과하게 접두어를 붙임
+function currentCustomerId() {
     const { accessToken } = useAuthStore.getState();
     const payload = accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    return String(JSON.parse(atob(payload)).sub);
+    return `user-${JSON.parse(atob(payload)).sub}`;
 }
 
 // 포트원 카드 등록창을 띄워 빌링키를 받음. 본인 정보는 등록창이 직접 받고, 창을 닫거나 실패하면 에러를 던짐
@@ -36,7 +37,7 @@ export async function issueBillingKey() {
         billingKeyMethod: 'CARD',
         issueId: `issue-${Date.now()}`,
         issueName: 'zelo 카드 등록',
-        customer: { customerId: currentUserId() },
+        customer: { customerId: currentCustomerId() },
     });
     if (!response || response.code) {
         // 포트원 창의 오류 문구는 영어 코드가 섞여 있어 사용자에게는 한글 안내만 보여 줌
@@ -76,6 +77,6 @@ export async function requestCardPayment({ portoneId, orderName, totalAmount, cu
         totalAmount,
         currency: 'CURRENCY_KRW',
         payMethod: 'CARD',
-        customer: { customerId: currentUserId(), ...customer },
+        customer: { customerId: currentCustomerId(), ...customer },
     });
 }
