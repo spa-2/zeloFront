@@ -14,10 +14,8 @@
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-bottom: 20px; border-bottom: 3px solid var(--emerald);
   font-family: "Anton", sans-serif; font-size: 13px; letter-spacing: .06em; color: var(--emerald);
 }
-.poster-nav .burger { width: 22px; height: 12px; border-top: 2.5px solid var(--emerald); border-bottom: 2.5px solid var(--emerald); position: relative; }
-.poster-nav .burger::after { content: ""; position: absolute; left: 0; right: 0; top: 2.5px; border-top: 2.5px solid var(--emerald); }
 /* 로고는 가운데 칸에 두고 크게. 아래 초록 줄과는 padding-bottom만큼 띄움 */
-.poster-nav .intro-logo { font-size: clamp(44px, 4.8vw, 66px); line-height: 1; letter-spacing: .02em; }
+.poster-nav .intro-logo { grid-column: 2; font-size: clamp(44px, 4.8vw, 66px); line-height: 1; letter-spacing: .02em; }
 .poster-nav .intro-logo b { color: var(--vermilion); }
 
 /* 왼쪽 위 할프톤 덩어리 (아래 문구와 안 겹치게 위로 올림) */
