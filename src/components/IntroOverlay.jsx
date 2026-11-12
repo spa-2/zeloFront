@@ -96,11 +96,15 @@ export default function IntroOverlay({ open, onClose }) {
     };
     const onTouchMove = (e) => touchY !== null && touchY - e.touches[0].clientY > 30 && collect();
     const onKey = (e) => COLLECT_KEYS.includes(e.key) && collect();
+    // 버튼(화살표)은 자기 동작이 있어서 제외
+    const onClick = (e) => !e.target.closest('button') && collect();
+    addEventListener('click', onClick);
     addEventListener('wheel', onWheel, { passive: true });
     addEventListener('touchstart', onTouchStart, { passive: true });
     addEventListener('touchmove', onTouchMove, { passive: true });
     addEventListener('keydown', onKey);
     return () => {
+      removeEventListener('click', onClick);
       removeEventListener('wheel', onWheel);
       removeEventListener('touchstart', onTouchStart);
       removeEventListener('touchmove', onTouchMove);
@@ -112,7 +116,6 @@ export default function IntroOverlay({ open, onClose }) {
   return (
     <div className={`intro${leaving ? ' done' : ''}`} hidden={!open} aria-label="ZELO 로딩 화면">
       <nav className="poster-nav">
-        <span className="burger" />
         <span className="intro-logo">
           ZELO<b>.</b>
         </span>
